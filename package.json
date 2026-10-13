@@ -1,0 +1,20 @@
+{
+  "name": "deep-desire",
+  "version": "1.0.0",
+  "private": true,
+  "description": "性格测试网站：Node.js + Express + 支付宝 AI 网页应用收款（alipay.trade.page.pay）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "alipay-sdk": "^4.14.0",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2"
+  }
+}
