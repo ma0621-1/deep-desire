@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>性格强度自评</title>
+<style>
+/* ===================== 全局基调：深夜密卷 ===================== */
+:root{
+  --bg:        #05060a;
+  --gold:      #c9a227;
+  --cyan:      #5fb3ae;
+  --text:      #cfcdc4;
+  --dim:       #7c7e78;
+  --line:      rgba(201,166,86,0.16);
+  --serif: "Songti SC","STSong","SimSun","Noto Serif SC","Source Han Serif SC",serif;
+  --mono: ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(1200px 720px at 50% -12%, rgba(58,92,92,0.17), transparent 62%),
+    radial-gradient(900px 620px at 92% 112%, rgba(122,92,20,0.11), transparent 62%),
+    radial-gradient(700px 500px at 4% 40%, rgba(40,80,120,0.06), transparent 65%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--serif);
+  letter-spacing:.02em;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size:46px 46px;
+  -webkit-mask-image:radial-gradient(circle at 50% 24%, #000 0%, transparent 78%);
+  mask-image:radial-gradient(circle at 50% 24%, #000 0%, transparent 78%);
+}
+.wrap{ position:relative; z-index:1; max-width:1000px; margin:0 auto; padding:56px 22px 96px; }
+header{ text-align:center; margin-bottom:40px; }
+h1{
+  margin:0;
+  font-size:clamp(25px, 4.2vw, 38px);
+  font-weight:600;
+  letter-spacing:.42em; text-indent:.42em;
+  background:linear-gradient(180deg,#f4e7b6 0%, #c9a227 52%, #7c6418 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 16px rgba(201,166,86,0.28));
+}
+.sub{
+  margin:15px 0 0; font-size:12.5px;
+  letter-spacing:.5em; text-indent:.5em;
+  color:rgba(120,180,178,0.62);
+}
+.rule{
+  width:min(520px, 78%); height:1px; margin:24px auto 0;
+  background:linear-gradient(90deg, transparent, rgba(201,166,86,0.55), rgba(95,179,174,0.35), transparent);
+  box-shadow:0 0 12px rgba(201,166,86,0.25);
+}
+/* ===================== 问卷 ===================== */
+.q-meta{
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-size:12px; letter-spacing:.22em; color:rgba(255,255,255,0.34);
+  margin-bottom:12px; font-family:var(--mono);
+}
+.q-progress{
+  height:2px; border-radius:2px; background:rgba(255,255,255,0.07);
+  overflow:hidden; margin-bottom:34px;
+}
+.q-progress i{
+  display:block; height:100%; width:0; border-radius:2px;
+  background:linear-gradient(90deg, rgba(95,179,174,0.85), rgba(201,166,86,0.95));
+  box-shadow:0 0 12px rgba(201,166,86,0.5);
+  transition:width .45s cubic-bezier(.2,.85,.25,1);
+}
+.q-card{
+  position:relative;
+  border:1px solid var(--line); border-radius:2px;
+  padding:38px 34px 34px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.006));
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.68), 0 0 46px rgba(0,0,0,0.6);
+  min-height:330px;
+}
+.q-card::before,.q-card::after{
+  content:""; position:absolute; width:14px; height:14px;
+  border:1px solid rgba(201,166,86,0.45); pointer-events:none;
+}
+.q-card::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+.q-card::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+.q-num{
+  margin:0 0 18px; font-size:12px;
+  letter-spacing:.5em; text-indent:.5em;
+  color:rgba(201,166,86,0.6);
+}
+.q-text{
+  margin:0 0 30px;
+  font-size:clamp(16px, 2.1vw, 19px);
+  line-height:1.95; letter-spacing:.06em; color:#e6e2d6;
+  text-shadow:0 0 18px rgba(200,220,220,0.10);
+  animation:riseIn .4s ease both;
+}
+.q-options{ display:flex; flex-direction:column; gap:11px; }
+.opt{
+  display:flex; align-items:center; gap:15px;
+  width:100%; text-align:left;
+  padding:14px 20px;
+  border:1px solid rgba(255,255,255,0.075); border-radius:2px;
+  background:rgba(255,255,255,0.012);
+  color:#c5c2b7; font-family:var(--serif);
+  font-size:14.5px; letter-spacing:.1em;
+  cursor:pointer; transition:all .22s ease;
+  animation:riseIn .38s ease both;
+}
+.opt:hover{
+  border-color:rgba(201,166,86,0.42);
+  background:rgba(201,166,86,0.045);
+  color:#efe7c8;
+  box-shadow:0 0 18px rgba(201,166,86,0.10), inset 0 0 22px rgba(201,166,86,0.045);
+}
+.opt.selected{
+  border-color:rgba(201,166,86,0.82);
+  background:linear-gradient(90deg, rgba(201,166,86,0.16), rgba(201,166,86,0.03));
+  color:#f7ecc2;
+  box-shadow:0 0 22px rgba(201,166,86,0.20), inset 0 0 26px rgba(201,166,86,0.07);
+}
+.opt-mark{
+  flex:none; width:10px; height:10px; border-radius:50%;
+  border:1px solid rgba(255,255,255,0.28); transition:all .22s ease;
+}
+.opt:hover .opt-mark{ border-color:rgba(201,166,86,0.8); }
+.opt.selected .opt-mark{
+  border-color:#f2d97e;
+  background:radial-gradient(circle at 34% 32%, #fff6d0, #c9a227 65%);
+  box-shadow:0 0 10px rgba(201,166,86,0.9), 0 0 20px rgba(201,166,86,0.45);
+}
+.opt-key{
+  flex:none; margin-left:auto;
+  font-family:var(--mono); font-size:10.5px;
+  letter-spacing:0; color:rgba(255,255,255,0.20);
+}
+.opt.selected .opt-key{ color:rgba(201,166,86,0.7); }
+@keyframes riseIn{
+  from{ opacity:0; transform:translateY(8px); }
+  to  { opacity:1; transform:none; }
+}
+/* ===================== 按钮 ===================== */
+.actions{
+  display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:34px;
+}
+.btn{
+  font-family:var(--serif); font-size:13.5px;
+  letter-spacing:.3em; text-indent:.3em;
+  padding:12px 30px; border-radius:2px;
+  background:transparent; border:1px solid rgba(201,166,86,0.32);
+  color:#d6c88e; cursor:pointer; transition:all .28s ease;
+}
+.btn:hover:not(:disabled){
+  border-color:rgba(201,166,86,0.85); color:#f6e8b8;
+  box-shadow:0 0 20px rgba(201,166,86,0.22), inset 0 0 20px rgba(201,166,86,0.08);
+  text-shadow:0 0 12px rgba(201,166,86,0.55);
+}
+.btn:active:not(:disabled){ transform:translateY(1px); }
+.btn:disabled{
+  opacity:.3; cursor:not-allowed;
+  border-color:rgba(255,255,255,0.12); color:rgba(255,255,255,0.3);
+}
+.hint{
+  text-align:center; min-height:18px; margin:18px 0 0;
+  font-size:12.5px; letter-spacing:.18em;
+  color:rgba(201,166,86,0.72);
+  opacity:0; transition:opacity .3s ease;
+}
+.hint.show{ opacity:1; }
+.done-banner{
+  text-align:center;
+  margin:0 0 34px;
+  padding:16px 20px;
+  border:1px solid rgba(201,166,86,0.28);
+  border-radius:2px;
+  background:linear-gradient(180deg, rgba(201,166,86,0.06), rgba(201,166,86,0.01));
+  font-size:13.5px;
+  letter-spacing:.22em;
+  color:rgba(232,205,130,0.92);
+  text-shadow:0 0 14px rgba(201,166,86,0.35);
+  opacity:0;
+  transform:translateY(-6px);
+  transition:opacity .5s ease, transform .5s ease;
+  pointer-events:none;
+}
+.done-banner.show{ opacity:1; transform:none; }
+/* ===================== 付费墙 ===================== */
+.paywall{
+  margin-top:52px; opacity:0; transform:translateY(14px);
+  transition:opacity .6s ease, transform .6s ease;
+}
+.paywall.hidden{ display:none; }
+.paywall.show{ opacity:1; transform:none; }
+.pw-card{
+  position:relative;
+  max-width:520px; margin:0 auto;
+  text-align:center;
+  padding:46px 40px 44px;
+  border:1px solid rgba(201,166,86,0.30);
+  border-radius:3px;
+  background:
+    radial-gradient(480px 260px at 50% -10%, rgba(201,166,86,0.10), transparent 65%),
+    linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.005));
+  box-shadow: inset 0 0 70px rgba(0,0,0,0.62), 0 0 44px rgba(0,0,0,0.55);
+}
+.pw-card::before,.pw-card::after{
+  content:""; position:absolute; width:16px; height:16px;
+  border:1px solid rgba(201,166,86,0.5); pointer-events:none;
+}
+.pw-card::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+.pw-card::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+.pw-title{
+  margin:0 0 12px;
+  font-size:16px; font-weight:600;
+  letter-spacing:.5em; text-indent:.5em;
+  color:#e9d9a4; text-shadow:0 0 16px rgba(201,166,86,0.4);
+}
+.pw-sub{
+  margin:0 0 26px;
+  font-size:12.5px; letter-spacing:.3em; text-indent:.3em;
+  color:rgba(255,255,255,0.42);
+}
+.pw-price{
+  font-family:var(--mono);
+  font-size:46px; font-weight:700; line-height:1;
+  color:#f5e6ae;
+  letter-spacing:-.02em;
+  text-shadow:0 0 34px rgba(201,166,86,0.8), 0 0 70px rgba(201,166,86,0.3);
+  margin-bottom:8px;
+}
+.pw-price small{ font-size:.42em; font-weight:500; margin-left:4px; color:rgba(245,230,174,0.7); }
+.pw-desc{
+  margin:0 0 30px;
+  font-size:13px; line-height:2.1; letter-spacing:.1em;
+  color:#b7b4ab;
+}
+.pw-desc i{ font-style:normal; color:#e6cf85; padding:0 2px; }
+.pw-status{
+  min-height:18px; margin:16px 0 0;
+  font-size:12.5px; letter-spacing:.16em;
+  color:rgba(201,166,86,0.8);
+}
+/* ===================== 结果区 ===================== */
+.result{
+  margin-top:62px; opacity:0; transform:translateY(14px);
+  transition:opacity .7s ease, transform .7s ease;
+}
+.result.hidden{ display:none; }
+.result.show{ opacity:1; transform:none; }
+.result h2{
+  text-align:center; font-size:15px; font-weight:500;
+  letter-spacing:.55em; text-indent:.55em;
+  color:rgba(201,166,86,0.78); margin:0 0 34px;
+  text-shadow:0 0 16px rgba(201,166,86,0.3);
+}
+/* =========================================================
+   ★ 主导三性 展示区（雷达图正上方）
+   ========================================================= */
+.top-traits{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:18px;
+  max-width:860px;
+  margin:0 auto 44px;
+}
+.tt-item{
+  position:relative;
+  text-align:center;
+  padding:22px 16px 24px;
+  border:1px solid rgba(201,166,86,0.22);
+  border-radius:3px;
+  background:linear-gradient(180deg, rgba(201,166,86,0.045), rgba(201,166,86,0.005));
+  box-shadow:
+    0 0 24px rgba(201,166,86,0.05),
+    inset 0 0 34px rgba(0,0,0,0.45);
+  animation:ttIn .6s cubic-bezier(.2,.85,.25,1) both;
+}
+.tt-item:nth-child(1){ animation-delay:0s;   }
+.tt-item:nth-child(2){ animation-delay:.09s; }
+.tt-item:nth-child(3){ animation-delay:.18s; }
+@keyframes ttIn{
+  from{ opacity:0; transform:translateY(-10px); }
+  to  { opacity:1; transform:none; }
+}
+/* 第一名：整体视觉重量明显更重 */
+.tt-item.tt-1{
+  border-color:rgba(242,217,126,0.72);
+  background:linear-gradient(180deg, rgba(201,166,86,0.18), rgba(201,166,86,0.03));
+  box-shadow:
+    0 0 46px rgba(201,166,86,0.28),
+    0 0 90px rgba(201,166,86,0.10),
+    inset 0 0 44px rgba(201,166,86,0.08);
+}
+.tt-item.tt-2{ border-color:rgba(201,166,86,0.40); }
+.tt-item.tt-3{ border-color:rgba(201,166,86,0.28); }
+/* 位次标签 */
+.tt-rank{
+  display:block;
+  font-size:10.5px;
+  font-family:var(--mono);
+  letter-spacing:.4em; text-indent:.4em;
+  color:rgba(255,255,255,0.34);
+  margin-bottom:12px;
+}
+.tt-item.tt-1 .tt-rank{ color:rgba(242,217,126,0.95); text-shadow:0 0 14px rgba(201,166,86,0.7); }
+.tt-item.tt-2 .tt-rank{ color:rgba(214,189,118,0.75); }
+.tt-item.tt-3 .tt-rank{ color:rgba(182,161,104,0.68); }
+/* 性格名 */
+.tt-name{
+  display:block;
+  font-size:clamp(19px, 2.8vw, 26px);
+  font-weight:600;
+  letter-spacing:.28em; text-indent:.28em;
+  color:#e2ded0;
+  margin-bottom:16px;
+}
+.tt-item.tt-1 .tt-name{
+  color:#f9f0c8;
+  text-shadow:0 0 26px rgba(201,166,86,0.85), 0 0 50px rgba(201,166,86,0.35);
+}
+.tt-item.tt-2 .tt-name{ color:#e8d9a4; text-shadow:0 0 16px rgba(201,166,86,0.35); }
+.tt-item.tt-3 .tt-name{ color:#d4c48e; }
+/* 分数 */
+.tt-score{
+  display:block;
+  font-family:var(--mono);
+  font-size:clamp(26px, 4.2vw, 40px);
+  font-weight:700;
+  line-height:1;
+  color:#d9c37a;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;
+}
+.tt-item.tt-1 .tt-score{
+  color:#f9ecb8;
+  text-shadow:0 0 30px rgba(201,166,86,0.85), 0 0 60px rgba(201,166,86,0.35);
+}
+.tt-item.tt-2 .tt-score{ color:#e3d094; text-shadow:0 0 16px rgba(201,166,86,0.4); }
+.tt-item.tt-3 .tt-score{ color:#cbba86; }
+.tt-score small{
+  font-size:.44em;
+  margin-left:3px;
+  font-weight:500;
+  color:rgba(217,195,122,0.6);
+}
+.tt-item.tt-1 .tt-score small{ color:rgba(249,236,184,0.7); }
+/* ===================== 雷达图 ===================== */
+.chart-box{ width:100%; display:flex; justify-content:center; }
+canvas#radar{
+  display:block; margin:0 auto;
+  filter:drop-shadow(0 0 40px rgba(110,180,180,0.12));
+}
+/* ===================== 排名表 ===================== */
+.rank-table{
+  margin:52px auto 0; max-width:780px;
+  border:1px solid rgba(255,255,255,0.075); border-radius:2px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0.004));
+  box-shadow:inset 0 0 60px rgba(0,0,0,0.6);
+  overflow:hidden;
+}
+.rank-head,.rank-row{
+  display:grid;
+  grid-template-columns:56px 130px minmax(0,1fr) 70px;
+  gap:16px; align-items:center; padding:12px 22px;
+}
+.rank-head{
+  font-size:11.5px; letter-spacing:.22em;
+  color:rgba(255,255,255,0.30);
+  border-bottom:1px solid rgba(255,255,255,0.075);
+  background:rgba(255,255,255,0.014);
+}
+.rank-row{
+  border-bottom:1px solid rgba(255,255,255,0.04); font-size:14px;
+}
+.rank-row:last-child{ border-bottom:none; }
+.rank-row.top1{ background:linear-gradient(90deg, rgba(201,166,86,0.15), rgba(201,166,86,0) 72%); }
+.rank-row.top2{ background:linear-gradient(90deg, rgba(201,166,86,0.09), rgba(201,166,86,0) 72%); }
+.rank-row.top3{ background:linear-gradient(90deg, rgba(201,166,86,0.055), rgba(201,166,86,0) 72%); }
+.rank-no{
+  font-family:var(--mono); font-size:13px; color:rgba(255,255,255,0.32);
+}
+.rank-row.top1 .rank-no{ color:#f2d97e; text-shadow:0 0 12px rgba(201,166,86,0.8); }
+.rank-row.top2 .rank-no{ color:#d6bd76; }
+.rank-row.top3 .rank-no{ color:#b6a168; }
+.rank-name{ letter-spacing:.16em; color:#dcd8cb; }
+.rank-row.top1 .rank-name{ color:#f7ecc2; text-shadow:0 0 16px rgba(201,166,86,0.5); }
+.rank-bar{
+  position:relative; height:4px; border-radius:2px;
+  background:rgba(255,255,255,0.07); overflow:hidden;
+}
+.rank-bar i{
+  display:block; height:100%; width:0; border-radius:2px;
+  background:linear-gradient(90deg, rgba(95,179,174,0.72), rgba(201,166,86,0.95));
+  box-shadow:0 0 12px rgba(201,166,86,0.5);
+  transition:width 1s cubic-bezier(.2,.85,.25,1);
+}
+.rank-score{
+  text-align:right; font-family:var(--mono);
+  font-size:13.5px; color:#cec5a0; font-variant-numeric:tabular-nums;
+}
+.rank-row.top1 .rank-score{ color:#f4e4b0; text-shadow:0 0 12px rgba(201,166,86,0.5); }
+/* ===================== 性情解读 ===================== */
+.analysis{
+  position:relative;
+  max-width:780px;
+  margin:64px auto 0;
+  padding-top:46px;
+  border-top:1px solid rgba(201,166,86,0.14);
+}
+.analysis::before{
+  content:"◆";
+  position:absolute;
+  top:-7px; left:50%;
+  transform:translateX(-50%);
+  background:var(--bg);
+  padding:0 16px;
+  color:rgba(201,166,86,0.55);
+  font-size:9px;
+  letter-spacing:0;
+}
+.ana-title{
+  text-align:center;
+  font-size:14px; font-weight:500;
+  letter-spacing:.55em; text-indent:.55em;
+  color:rgba(201,166,86,0.78);
+  margin:0 0 38px;
+  text-shadow:0 0 16px rgba(201,166,86,0.3);
+}
+.ana-block{ margin-bottom:36px; }
+.ana-block:last-child{ margin-bottom:0; }
+.ana-block h3{
+  margin:0 0 16px;
+  font-size:11.5px; font-weight:600;
+  letter-spacing:.42em; text-indent:.42em;
+  color:rgba(95,179,174,0.78);
+  display:flex; align-items:center; gap:14px;
+}
+.ana-block h3::after{
+  content:"";
+  flex:1; height:1px;
+  background:linear-gradient(90deg, rgba(95,179,174,0.22), transparent);
+}
+.ana-block p{
+  margin:0;
+  font-size:14px; line-height:2.05;
+  letter-spacing:.04em; color:#b7b4ab;
+}
+.ana-block p em{
+  font-style:normal; color:#e6cf85;
+  padding:0 2px;
+  text-shadow:0 0 12px rgba(201,166,86,0.35);
+}
+.ana-item{
+  padding:16px 20px;
+  margin-bottom:12px;
+  border-left:2px solid rgba(201,166,86,0.32);
+  background:linear-gradient(90deg, rgba(201,166,86,0.045), rgba(201,166,86,0));
+}
+.ana-item:last-child{ margin-bottom:0; }
+.ana-item h4{
+  margin:0 0 9px;
+  font-size:13px; font-weight:600;
+  letter-spacing:.16em; color:#e0d3a0;
+}
+.ana-item p{
+  font-size:13.5px; line-height:2; color:#b3b0a7;
+}
+.ana-closing{
+  margin-top:48px; padding-top:32px;
+  border-top:1px solid rgba(255,255,255,0.055);
+  text-align:center;
+}
+.ana-closing p{
+  font-size:14px; letter-spacing:.12em;
+  color:rgba(201,166,86,0.80);
+  line-height:2.1;
+  text-shadow:0 0 14px rgba(201,166,86,0.22);
+}
+.foot{
+  margin-top:48px; text-align:center;
+  font-size:11.5px; letter-spacing:.3em;
+  color:rgba(255,255,255,0.16);
+}
+/* ===================== 响应式 ===================== */
+@media (max-width:720px){
+  .wrap{ padding:40px 15px 72px; }
+  .q-card{ padding:28px 20px 26px; min-height:290px; }
+  .opt{ padding:12px 15px; font-size:13.5px; gap:12px; }
+  .opt-key{ display:none; }
+  .actions{ gap:12px; margin-top:26px; }
+  .btn{ padding:11px 20px; font-size:12.5px; letter-spacing:.2em; text-indent:.2em; }
+  /* 主导三性：小屏仍保持三列，但压缩留白 */
+  .top-traits{ gap:8px; margin-bottom:30px; }
+  .tt-item{ padding:14px 6px 16px; }
+  .tt-rank{ font-size:9px; letter-spacing:.22em; text-indent:.22em; margin-bottom:8px; }
+  .tt-name{ font-size:15px; letter-spacing:.14em; text-indent:.14em; margin-bottom:10px; }
+  .tt-score{ font-size:24px; }
+  .tt-score small{ font-size:.42em; margin-left:2px; }
+  .rank-head,.rank-row{
+    grid-template-columns:36px 92px minmax(0,1fr) 54px;
+    gap:10px; padding:11px 14px; font-size:13px;
+  }
+  .rank-head{ font-size:10.5px; letter-spacing:.12em; }
+  .rank-name{ letter-spacing:.06em; }
+  .analysis{ margin-top:48px; padding-top:36px; }
+  .ana-item{ padding:14px 15px; }
+  .ana-block p{ font-size:13.5px; }
+  /* 付费墙：小屏压缩 */
+  .pw-card{ padding:34px 22px 32px; }
+  .pw-title{ font-size:14px; letter-spacing:.3em; text-indent:.3em; }
+  .pw-price{ font-size:38px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>性格强度自评</h1>
+    <p class="sub">十 性 观 照 · 静 夜 自 省</p>
+    <div class="rule"></div>
+  </header>
+  <!-- ============ 问卷区 ============ -->
+  <section id="quiz">
+    <div class="q-meta">
+      <span id="qIndex">第 一 题</span>
+      <span id="qProgressText">已答 0 / 80</span>
+    </div>
+    <div class="q-progress"><i id="qBar"></i></div>
+    <div class="done-banner" id="doneBanner">八 十 题 已 毕 · 正 在 观 照</div>
+    <div class="q-card">
+      <p class="q-num" id="qNum">其 一</p>
+      <p class="q-text" id="qText">载入中……</p>
+      <div class="q-options" id="qOptions"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="prevBtn">上一题</button>
+      <button class="btn" id="nextBtn">下一题</button>
+    </div>
+    <div class="actions" style="margin-top:22px;">
+      <button class="btn" id="resetBtn">重置全部</button>
+    </div>
+    <p class="hint" id="hint"></p>
+  </section>
+  <!-- ============ 付费墙 ============ -->
+  <section class="paywall hidden" id="paywall">
+    <div class="pw-card">
+      <p class="pw-title">观 照 已 毕 · 报 告 待 启</p>
+      <p class="pw-sub">八 十 题 已 答 完</p>
+      <p class="pw-price">¥5.9<small>一次解锁 · 永久查看</small></p>
+      <p class="pw-desc">
+        解锁后你将看到：<i>主导三性</i> · <i>雷达全图</i> · <i>十项排名</i> · <i>性情解读</i>
+      </p>
+      <button class="btn" id="payBtn">支 付 宝 支 付 · 解 锁 报 告</button>
+      <p class="pw-status" id="payStatus"></p>
+    </div>
+  </section>
+  <!-- ============ 结果区 ============ -->
+  <section class="result hidden" id="result">
+    <h2>观 照 之 图</h2>
+    <!-- ★ 雷达图上方：主导三性展示区 -->
+    <div class="top-traits" id="topTraits"></div>
+    <div class="chart-box">
+      <canvas id="radar"></canvas>
+    </div>
+    <div class="rank-table" id="rankTable"></div>
+    <div class="analysis" id="analysis"></div>
+    <p class="foot">本自评仅供自省参照 · 非科学量表</p>
+  </section>
+</div>
+<script>
+/* =========================================================
+   一、十种性格定义
+   ========================================================= */
+const TRAITS = [
+  { id:'01', name:'怒者', desc:'容易被激怒、情绪来得快、受刺激后立刻想反击' },
+  { id:'02', name:'贪者', desc:'对利益、好处高度敏感，容易被有利可图的事物吸引' },
+  { id:'03', name:'傲者', desc:'自尊心极强、喜欢被认可、讨厌被轻视' },
+  { id:'04', name:'疑者', desc:'多疑、不轻易信任、总想确认别人是否有隐藏意图' },
+  { id:'05', name:'懦者', desc:'害怕冲突与风险，倾向于回避、退缩或求稳' },
+  { id:'06', name:'智者', desc:'冷静理性、善于分析局势、喜欢用策略应对' },
+  { id:'07', name:'愚者', desc:'容易被表象迷惑、思考不够深入、容易轻信或冲动' },
+  { id:'08', name:'贤者', desc:'有原则、讲道义、重视道德与名声' },
+  { id:'09', name:'刚者', desc:'性格刚硬、固执、不轻易妥协，容易硬碰硬' },
+  { id:'10', name:'柔者', desc:'柔软、灵活、善于迂回、愿意暂时示弱或顺应形势' }
+];
+/* =========================================================
+   二、题库（每种性格 8 题，6 正 2 反，共 80 题）
+   r:true 表示反向计分
+   ========================================================= */
+const BANK = [
+  /* 0 · 怒者 */
+  [
+    { t:'当有人当众反驳我，我第一时间就想顶回去。', r:false },
+    { t:'排队被插队、说话被打断，我的火气会立刻上来。', r:false },
+    { t:'遇到不顺心的小事，我的情绪很快就会写在脸上。', r:false },
+    { t:'别人动作慢、做事拖沓，我会忍不住想发火。', r:false },
+    { t:'我有时会因为一句话就瞬间变脸。', r:false },
+    { t:'生气的时候，我很难压住，一定要表达出来。', r:false },
+    { t:'即使被冒犯，我也能很快平复心情。', r:true },
+    { t:'我很少因为小事而情绪失控。', r:true }
+  ],
+  /* 1 · 贪者 */
+  [
+    { t:'听到有赚外快、薅羊毛的机会，我会格外上心。', r:false },
+    { t:'做决定前，我习惯先算清楚自己能从中得到什么。', r:false },
+    { t:'面对免费或限量的好处，我很难做到无动于衷。', r:false },
+    { t:'看到别人得到好处而我没有，我会觉得不甘心。', r:false },
+    { t:'我会主动打听哪里还有可以利用的资源或机会。', r:false },
+    { t:'与人交往时，我会下意识衡量这段关系能带来什么。', r:false },
+    { t:'即使有好处摆在眼前，若与我无关，我也不会多看一眼。', r:true },
+    { t:'我很少因为错过某个好处而耿耿于怀。', r:true }
+  ],
+  /* 2 · 傲者 */
+  [
+    { t:'被人忽视或轻视时，我会格外在意，甚至耿耿于怀。', r:false },
+    { t:'我需要别人肯定我的能力和判断，否则会不安。', r:false },
+    { t:'在群体中，我希望自己是那个被高看一眼的人。', r:false },
+    { t:'被人指出错误时，我第一反应是辩解而不是接受。', r:false },
+    { t:'我很在意自己在别人心里的位置和分量。', r:false },
+    { t:'我不喜欢向别人请教，那让我觉得自己不够强。', r:false },
+    { t:'别人比我强，我会坦然承认并欣赏。', r:true },
+    { t:'被忽视的时候，我通常不会放在心上。', r:true }
+  ],
+  /* 3 · 疑者 */
+  [
+    { t:'别人突然对我热情，我会先想他是不是有求于我。', r:false },
+    { t:'我常常需要反复确认，才敢相信一件事是真的。', r:false },
+    { t:'听到赞美的话，我会先琢磨背后的用意。', r:false },
+    { t:'我很难完全信任一个人，哪怕关系很近。', r:false },
+    { t:'别人说话含糊时，我会猜测他是不是在隐瞒什么。', r:false },
+    { t:'我习惯观察细节，来判断对方有没有说谎。', r:false },
+    { t:'我倾向于相信别人说的话，直到有证据表明不是。', r:true },
+    { t:'与人相处时，我很少去揣测对方的动机。', r:true }
+  ],
+  /* 4 · 懦者 */
+  [
+    { t:'遇到可能起冲突的场合，我倾向于先避开。', r:false },
+    { t:'做选择时，我更愿意选稳妥、不出错的那条路。', r:false },
+    { t:'即使心里有不同意见，我也常常选择不说出口。', r:false },
+    { t:'面对强势的人，我会不自觉地顺从。', r:false },
+    { t:'我害怕承担责任，担心出错被追究。', r:false },
+    { t:'需要在众人面前表达时，我会紧张甚至想逃。', r:false },
+    { t:'该争取的时候，我会毫不犹豫地站出来。', r:true },
+    { t:'面对风险，我愿意为了更大的可能去赌一把。', r:true }
+  ],
+  /* 5 · 智者 */
+  [
+    { t:'局面混乱时，我会先冷静下来分析利弊。', r:false },
+    { t:'我习惯先想好几步，再决定怎么行动。', r:false },
+    { t:'面对对手，我更愿意用策略而不是硬拼。', r:false },
+    { t:'做重要决定前，我会收集足够的信息。', r:false },
+    { t:'我能把自己的情绪和判断分开来看。', r:false },
+    { t:'遇到问题时，我会先找规律，而不是急着下结论。', r:false },
+    { t:'我常常凭直觉行动，很少事先规划。', r:true },
+    { t:'情绪上来时，我很难保持冷静思考。', r:true }
+  ],
+  /* 6 · 愚者 */
+  [
+    { t:'我常常凭第一印象就判断人和事。', r:false },
+    { t:'看到别人都在做某件事，我也容易跟着做。', r:false },
+    { t:'我有时话已出口，才反应过来不太妥当。', r:false },
+    { t:'我容易被新鲜的说法打动，事后才发现考虑不周。', r:false },
+    { t:'我不太习惯深究一件事背后的原因。', r:false },
+    { t:'别人稍微一劝说，我就容易改变主意。', r:false },
+    { t:'我做事之前会反复推敲，很少草率。', r:true },
+    { t:'我不容易被别人的说法带偏。', r:true }
+  ],
+  /* 7 · 贤者 */
+  [
+    { t:'即使没有人知道，我也会守住自己认定的底线。', r:false },
+    { t:'我做事会先想是否符合道义，而不只是看利益。', r:false },
+    { t:'我在意自己的名声是否清白。', r:false },
+    { t:'看到不公平的事，我会觉得心里不舒服。', r:false },
+    { t:'我答应过的事，即使吃亏也会做到。', r:false },
+    { t:'我愿意为了原则而放弃眼前的实惠。', r:false },
+    { t:'只要不被发现，有些规矩是可以变通的。', r:true },
+    { t:'在利益面前，原则是可以商量的。', r:true }
+  ],
+  /* 8 · 刚者 */
+  [
+    { t:'我认定的事，别人很难说服我改变。', r:false },
+    { t:'我宁可硬碰硬，也不愿意低头让步。', r:false },
+    { t:'我的立场一旦表明，就不轻易松动。', r:false },
+    { t:'别人说我固执，我并不觉得是坏事。', r:false },
+    { t:'在争论中，我很少主动先退一步。', r:false },
+    { t:'我讨厌被人安排，喜欢按自己的方式来。', r:false },
+    { t:'我很容易接受别人的意见并调整自己。', r:true },
+    { t:'遇到更强的对手，我会考虑先退让。', r:true }
+  ],
+  /* 9 · 柔者 */
+  [
+    { t:'遇到强硬的人，我会先顺着对方，再找机会。', r:false },
+    { t:'我懂得在适当的时候示弱，以换取更大的空间。', r:false },
+    { t:'我善于绕开正面冲突，用迂回的方式达到目的。', r:false },
+    { t:'计划被打乱时，我能很快调整方向。', r:false },
+    { t:'我很少把事情做绝，总留有余地。', r:false },
+    { t:'与不同的人相处，我会调整自己的方式。', r:false },
+    { t:'我说话做事比较直接，不太会绕弯子。', r:true },
+    { t:'我很难向别人低头，即使那样更有利。', r:true }
+  ]
+];
+const ROUNDS = BANK[0].length;
+/* 交错铺平成答题序列：每轮 10 种性格各出一题，避免连续同质 */
+const QUESTIONS = [];
+for (let round = 0; round < ROUNDS; round++) {
+  for (let t = 0; t < TRAITS.length; t++) {
+    const item = BANK[t][round];
+    QUESTIONS.push({ trait: t, text: item.t, reverse: item.r });
+  }
+}
+/* 答题选项（五级量表，分值 0~4） */
+const SCALE = [
+  { label:'非常符合', score:4 },
+  { label:'比较符合', score:3 },
+  { label:'说不清',   score:2 },
+  { label:'不太符合', score:1 },
+  { label:'完全不符', score:0 }
+];
+/* =========================================================
+   三、每种性格的三档解读文字
+   高（≥70）/ 中（40~69）/ 低（<40）
+   ========================================================= */
+const TRAIT_READING = [
+  /* 0 怒者 */
+  {
+    high:'情绪在你身上几乎不隔夜。刺激一到，反击的冲动便立刻升起，你很难容忍被冒犯而不回应。这让你在冲突中很少吃亏，却也容易在小事上耗损元气。',
+    mid:'你有怒火，但多数时候能压住。只有反复被触犯时才会爆发——不轻易翻脸，翻脸则不留情。',
+    low:'你的情绪缓冲带很宽。别人激你，你未必立刻反应，这让你在混乱的局面里比多数人稳。'
+  },
+  /* 1 贪者 */
+  {
+    high:'你对“有利可图”四个字有天然的敏感。机会出现时你比别人先看到，也先动心。这让你善于抓住资源，但也容易在取舍时失去分寸。',
+    mid:'你对利益是清醒的，只是不至于被它牵着走。能算账，也能放得下。',
+    low:'你对利益相对淡泊，不太会为了好处而改变自己的节奏。这让你从容，但有时也会错过本该属于你的东西。'
+  },
+  /* 2 傲者 */
+  {
+    high:'你的自尊是硬的。被认可是你行动的燃料，被轻视则是你的逆鳞。你很难在低头的姿态里久留，这让你骨子里有股不服输的劲。',
+    mid:'你在意认可，但不至于被它绑架。尊严与务实之间，你能找到平衡。',
+    low:'你不太在意别人怎么看你。被忽视、被低估，你都能淡然处之，这让你少了很多不必要的内耗。'
+  },
+  /* 3 疑者 */
+  {
+    high:'你天生带一层防护。别人递过来的东西，你会先看有没有钩子。这让你不易被骗，却也难以全然放松地信任。',
+    mid:'你有戒备，但不至于处处设防。该信的时候信，该留一手的时候留一手。',
+    low:'你倾向于相信人，愿意给出信任。这让你的人际关系轻松，但也需要留意被辜负的可能。'
+  },
+  /* 4 懦者 */
+  {
+    high:'你对冲突和风险有本能的回避。求稳、避让、不主动出头，是你保护自己的方式。这让你少摔跟头，但也容易错过本该争取的东西。',
+    mid:'你不喜欢冒险，但该上的时候也不会退。稳中有进，是你的节奏。',
+    low:'你敢正面迎上去，不惧冲突与风险。这让你有机会拿到更大的东西，但也需要留意代价。'
+  },
+  /* 5 智者 */
+  {
+    high:'你不轻易被情绪带走，遇事先看局、再动子。策略是你最习惯的语言，你更愿意赢在布局，而不是赢在气势。',
+    mid:'你理性与感性并重，能分析也能体感，不至于陷入冰冷，也不至于被情绪冲昏。',
+    low:'你不习惯算计，更喜欢凭直觉和当下反应行事。这让你直接，但在复杂的局里容易吃亏。'
+  },
+  /* 6 愚者 */
+  {
+    high:'你的第一反应常常先于深思。容易被表象吸引、被他人带着走。这让你显得赤诚，却也容易在同一类坑里反复跌。',
+    mid:'你有天真的一面，也有反思的能力。偶尔冲动，但不至于失控。',
+    low:'你思虑较深，不轻易被表象迷惑。凡事习惯先掂量，这让你少走弯路。'
+  },
+  /* 7 贤者 */
+  {
+    high:'你心里有杆秤。道义、原则、名声，是你行动的边界，也是你不愿轻易跨越的线。这让你行事有分量，但有时也会因此失去灵活。',
+    mid:'你讲原则，但讲得通人情。底线清楚，手腕也不僵硬。',
+    low:'你更务实，不太被道德框架束缚。这让你做事利落，但需要留意别把原则当累赘。'
+  },
+  /* 8 刚者 */
+  {
+    high:'你的骨头是硬的。认定的事很难被说服，退一步比登天还难。这让你可托付，但也容易把自己逼到没有回旋的境地。',
+    mid:'你有立场，也懂得变通。刚柔之间，你有余地。',
+    low:'你不固执，愿意听、愿意改。这让你柔软灵活，但也容易让人觉得你立场不稳。'
+  },
+  /* 9 柔者 */
+  {
+    high:'你懂得低头，也懂得绕路。正面硬拼不是你首选的方式，迂回、示弱、等待时机才是。这让你在长局里往往走得更远。',
+    mid:'你柔中有韧，懂得什么时候顺、什么时候顶。',
+    low:'你直来直去，不爱绕弯。这让你干脆利落，但也容易在需要迂回的局里碰壁。'
+  }
+];
+/* =========================================================
+   四、状态
+   ========================================================= */
+let current = 0;
+const answers = new Array(QUESTIONS.length).fill(null);
+let autoTimer = null;
+let scores = new Array(10).fill(0);
+let resultShown = false;   // 结果是否已经展示过（用于回看修改时刷新）
+/* =========================================================
+   五、DOM 引用
+   ========================================================= */
+const qIndexEl    = document.getElementById('qIndex');
+const qProgressEl = document.getElementById('qProgressText');
+const qBar        = document.getElementById('qBar');
+const qNumEl      = document.getElementById('qNum');
+const qTextEl     = document.getElementById('qText');
+const qOptionsEl  = document.getElementById('qOptions');
+const prevBtn     = document.getElementById('prevBtn');
+const nextBtn     = document.getElementById('nextBtn');
+const resetBtn    = document.getElementById('resetBtn');
+const hintEl      = document.getElementById('hint');
+const doneBanner  = document.getElementById('doneBanner');
+const resultEl    = document.getElementById('result');
+const topTraitsEl = document.getElementById('topTraits');
+const rankTableEl = document.getElementById('rankTable');
+const analysisEl  = document.getElementById('analysis');
+/* =========================================================
+   六、工具函数
+   ========================================================= */
+function cnNum(n){
+  const d = ['零','一','二','三','四','五','六','七','八','九'];
+  if (n < 10)  return d[n];
+  if (n === 10) return '十';
+  if (n < 20)  return '十' + d[n - 10];
+  const tens = Math.floor(n / 10), ones = n % 10;
+  return d[tens] + '十' + (ones ? d[ones] : '');
+}
+function isAllAnswered(){
+  return answers.every(a => a !== null);
+}
+/* =========================================================
+   七、渲染题目
+   ========================================================= */
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  qIndexEl.textContent = '第 ' + cnNum(current + 1) + ' 题';
+  qNumEl.textContent   = '其 ' + cnNum(current + 1);
+  qTextEl.textContent  = q.text;
+  qOptionsEl.innerHTML = '';
+  SCALE.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'opt' + (answers[current] === i ? ' selected' : '');
+    btn.dataset.opt = i;
+    btn.style.animationDelay = (i * 0.045) + 's';
+    btn.innerHTML =
+      `<span class="opt-mark"></span><span>${s.label}</span>` +
+      `<span class="opt-key">${i + 1}</span>`;
+    qOptionsEl.appendChild(btn);
+  });
+  prevBtn.disabled = (current === 0);
+  nextBtn.disabled = (current === QUESTIONS.length - 1);
+  updateProgress();
+}
+function updateProgress(){
+  const answered = answers.filter(a => a !== null).length;
+  qProgressEl.textContent = `已答 ${answered} / ${QUESTIONS.length}`;
+  qBar.style.width = (answered / QUESTIONS.length * 100) + '%';
+}
+/* =========================================================
+   八、选项点击
+   ========================================================= */
+qOptionsEl.addEventListener('click', e => {
+  const btn = e.target.closest('.opt');
+  if (!btn) return;
+  selectOption(Number(btn.dataset.opt));
+});
+function selectOption(optIdx){
+  answers[current] = optIdx;
+  saveAnswers();   // ★ 答题进度持久化，支付回跳后仍可计算报告
+  [...qOptionsEl.children].forEach((el, i) => {
+    el.classList.toggle('selected', i === optIdx);
+  });
+  updateProgress();
+  /* 全部答完 */
+  if (isAllAnswered()) {
+    /* 未解锁：进入付费墙 */
+    if (!isUnlocked()) {
+      doneBanner.classList.add('show');
+      clearTimeout(autoTimer);
+      autoTimer = setTimeout(() => {
+        showPaywall();
+        setTimeout(() => doneBanner.classList.remove('show'), 600);
+      }, 720);
+      return;
+    }
+    /* 已解锁：回看修改直接刷新，首次展示自动展开 */
+    if (resultShown) {
+      clearTimeout(autoTimer);
+      refreshResult();
+      return;
+    }
+    doneBanner.classList.add('show');
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(() => {
+      showResult();
+      setTimeout(() => doneBanner.classList.remove('show'), 600);
+    }, 720);
+    return;
+  }
+  /* 未答完：自动跳下一题 */
+  clearTimeout(autoTimer);
+  if (current < QUESTIONS.length - 1) {
+    autoTimer = setTimeout(() => { current++; renderQuestion(); }, 240);
+  }
+}
+/* 数字键 1~5 快速作答，左右方向键翻页 */
+document.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea') return;
+  const n = Number(e.key);
+  if (n >= 1 && n <= 5) {
+    selectOption(n - 1);
+  } else if (e.key === 'ArrowLeft') {
+    clearTimeout(autoTimer);
+    if (current > 0) { current--; renderQuestion(); }
+  } else if (e.key === 'ArrowRight') {
+    clearTimeout(autoTimer);
+    if (current < QUESTIONS.length - 1) { current++; renderQuestion(); }
+  }
+});
+prevBtn.addEventListener('click', () => {
+  clearTimeout(autoTimer);
+  if (current > 0) { current--; renderQuestion(); }
+});
+nextBtn.addEventListener('click', () => {
+  clearTimeout(autoTimer);
+  if (current < QUESTIONS.length - 1) { current++; renderQuestion(); }
+});
+/* =========================================================
+   九、重置全部
+   ========================================================= */
+resetBtn.addEventListener('click', () => {
+  clearTimeout(autoTimer);
+  clearInterval(pollTimer);
+  answers.fill(null);
+  current = 0;
+  progress = 0;
+  resultShown = false;
+  resultEl.classList.remove('show');
+  resultEl.classList.add('hidden');
+  topTraitsEl.innerHTML = '';
+  rankTableEl.innerHTML = '';
+  analysisEl.innerHTML = '';
+  doneBanner.classList.remove('show');
+  hintEl.classList.remove('show');
+  hintEl.textContent = '';
+  paywallEl.classList.add('hidden');
+  paywallEl.classList.remove('show');
+  payStatusEl.textContent = '';
+  clearLocalState();
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+/* =========================================================
+   十、计分
+   每种性格 8 题，每题最高 4 分 → 满分 32 → 折算百分比
+   反向题：得分 = 4 - 所选分值
+   ========================================================= */
+function computeScores(){
+  const totals = new Array(TRAITS.length).fill(0);
+  const counts = new Array(TRAITS.length).fill(0);
+  QUESTIONS.forEach((q, i) => {
+    counts[q.trait]++;
+    if (answers[i] !== null) {
+      let s = SCALE[answers[i]].score;
+      if (q.reverse) s = 4 - s;
+      totals[q.trait] += s;
+    }
+  });
+  return totals.map((sum, i) => {
+    const full = counts[i] * 4;
+    return full > 0 ? Math.round(sum / full * 100) : 0;
+  });
+}
+/* =========================================================
+   十一、雷达图
+   ---------------------------------------------------------
+   ★ 尺寸较上一版明显放大：最大接近容器满宽（820px）
+   ★ 前三名顶点用金色圆点高亮，与其余顶点区分
+   ========================================================= */
+const canvas = document.getElementById('radar');
+const ctx = canvas.getContext('2d');
+let cssSize = 800;
+let progress = 0;
+let rafId = null;
+/* 计算前三名的索引集合（供雷达图高亮用） */
+function getTop3Set(){
+  const idx = TRAITS.map((_, i) => i)
+    .sort((a, b) => scores[b] - scores[a]);
+  return new Set(idx.slice(0, 3));
+}
+function layoutCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  const parent = canvas.parentElement;
+  const avail = (parent && parent.clientWidth) ? parent.clientWidth : 800;
+  /* ★ 放大：上限从 620 提到 820 */
+  cssSize = Math.max(280, Math.min(avail, 820));
+  canvas.style.width  = cssSize + 'px';
+  canvas.style.height = cssSize + 'px';
+  canvas.width  = Math.round(cssSize * dpr);
+  canvas.height = Math.round(cssSize * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function drawRadar(prog){
+  const size = cssSize;
+  const n = TRAITS.length;
+  const cx = size / 2, cy = size / 2;
+  /* ★ 半径按画布比例缩放，留出标签空间（约为画布宽的 15%） */
+  const pad = size * 0.15;
+  const R = Math.max(70, size / 2 - pad);
+  const startA = -Math.PI / 2;
+  const ang = i => startA + i * 2 * Math.PI / n;
+  const top3Set = getTop3Set();
+  ctx.clearRect(0, 0, size, size);
+  /* 幽暗底色 */
+  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.56);
+  bg.addColorStop(0,    'rgba(40,62,64,0.42)');
+  bg.addColorStop(0.55, 'rgba(14,20,24,0.22)');
+  bg.addColorStop(1,    'rgba(0,0,0,0)');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, size, size);
+  /* 最外圈微光弧 */
+  ctx.beginPath();
+  ctx.arc(cx, cy, R + size * 0.02, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.055)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  /* 同心十边形网格 */
+  const rings = 4;
+  for (let r = 1; r <= rings; r++){
+    const rr = R * r / rings;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++){
+      const a = ang(i);
+      const x = cx + Math.cos(a) * rr;
+      const y = cy + Math.sin(a) * rr;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = (r === rings) ? 'rgba(255,255,255,0.26)' : 'rgba(255,255,255,0.085)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  /* 放射轴线 */
+  ctx.beginPath();
+  for (let i = 0; i < n; i++){
+    const a = ang(i);
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.09)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  /* 数据多边形顶点 */
+  const pts = [];
+  for (let i = 0; i < n; i++){
+    const v = (scores[i] / 100) * prog;
+    const a = ang(i);
+    pts.push([ cx + Math.cos(a) * R * v, cy + Math.sin(a) * R * v ]);
+  }
+  /* 多边形内部填充 */
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+  ctx.closePath();
+  const fill = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  fill.addColorStop(0,   'rgba(120,200,200,0.16)');
+  fill.addColorStop(0.7, 'rgba(150,190,180,0.07)');
+  fill.addColorStop(1,   'rgba(201,166,86,0.05)');
+  ctx.fillStyle = fill;
+  ctx.fill();
+  /* 多边形白色描边（冷光） */
+  ctx.save();
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+  ctx.closePath();
+  ctx.shadowColor = 'rgba(190,230,235,0.65)';
+  ctx.shadowBlur = 16;
+  ctx.strokeStyle = 'rgba(247,250,252,0.95)';
+  ctx.lineWidth = 1.8;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  ctx.restore();
+  /* ★ 顶点：前三名金色放大点，其余白色点 */
+  pts.forEach(([x, y], i) => {
+    const isTop = top3Set.has(i);
+    ctx.save();
+    if (isTop) {
+      /* 外圈光晕 */
+      ctx.beginPath();
+      ctx.arc(x, y, 9, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(201,166,86,0.20)';
+      ctx.fill();
+      ctx.shadowColor = 'rgba(242,217,126,0.98)';
+      ctx.shadowBlur = 20;
+      ctx.beginPath();
+      ctx.arc(x, y, 5.4, 0, Math.PI * 2);
+      ctx.fillStyle = '#f9ecb8';
+      ctx.fill();
+    } else {
+      ctx.shadowColor = 'rgba(210,240,255,0.95)';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(x, y, 3.6, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+  /* 外围标签：前三名更亮、更粗 */
+  const fs = Math.max(12, size * 0.023);
+  ctx.font = `600 ${fs}px "Songti SC","STSong","Noto Serif SC",serif`;
+  for (let i = 0; i < n; i++){
+    const a = ang(i);
+    const lx = cx + Math.cos(a) * (R + size * 0.035);
+    const ly = cy + Math.sin(a) * (R + size * 0.035);
+    const cosA = Math.cos(a), sinA = Math.sin(a);
+    ctx.textAlign    = Math.abs(cosA) < 0.2 ? 'center' : (cosA > 0 ? 'left' : 'right');
+    ctx.textBaseline = Math.abs(sinA) < 0.2 ? 'middle' : (sinA > 0 ? 'top' : 'bottom');
+    const v = scores[i];
+    const isTop = top3Set.has(i);
+    if (isTop) {
+      ctx.font = `700 ${fs * 1.08}px "Songti SC","STSong","Noto Serif SC",serif`;
+      ctx.fillStyle = 'rgba(249,236,184,0.98)';
+      ctx.shadowColor = 'rgba(201,166,86,0.85)';
+      ctx.shadowBlur = 16;
+    } else {
+      ctx.font = `600 ${fs}px "Songti SC","STSong","Noto Serif SC",serif`;
+      const alpha = 0.42 + (v / 100) * 0.5;
+      ctx.fillStyle = v >= 60
+        ? `rgba(232,205,130,${alpha})`
+        : `rgba(214,216,210,${alpha})`;
+      ctx.shadowColor = 'rgba(0,0,0,0.85)';
+      ctx.shadowBlur = 6;
+    }
+    ctx.fillText(`${TRAITS[i].id} ${TRAITS[i].name}`, lx, ly);
+    ctx.shadowBlur = 0;
+  }
+}
+function animateRadar(){
+  layoutCanvas();
+  const t0 = performance.now();
+  const dur = 1000;
+  if (rafId) cancelAnimationFrame(rafId);
+  (function frame(now){
+    const p = Math.min(1, (now - t0) / dur);
+    progress = 1 - Math.pow(1 - p, 3);
+    drawRadar(progress);
+    if (p < 1) { rafId = requestAnimationFrame(frame); }
+    else { progress = 1; drawRadar(1); }
+  })(performance.now());
+}
+window.addEventListener('resize', () => {
+  if (resultEl.classList.contains('hidden')) return;
+  layoutCanvas();
+  drawRadar(progress);
+});
+/* =========================================================
+   十二、★ 主导三性展示区（雷达图上方）
+   ========================================================= */
+function renderTopTraits(){
+  /* 按分数从高到低取前三 */
+  const top3 = TRAITS
+    .map((t, i) => ({ ...t, v: scores[i] }))
+    .sort((a, b) => b.v - a.v)
+    .slice(0, 3);
+  /* 位次文字 */
+  const rankLabels = ['其 一', '其 二', '其 三'];
+  let html = '';
+  top3.forEach((t, idx) => {
+    html += `
+      <div class="tt-item tt-${idx + 1}">
+        <span class="tt-rank">${rankLabels[idx]}</span>
+        <span class="tt-name">${t.name}</span>
+        <span class="tt-score">${t.v}<small>%</small></span>
+      </div>`;
+  });
+  topTraitsEl.innerHTML = html;
+}
+/* =========================================================
+   十三、排名表
+   ========================================================= */
+function renderTable(){
+  const rows = TRAITS
+    .map((t, i) => ({ ...t, v: scores[i] }))
+    .sort((a, b) => b.v - a.v);
+  let html = `
+    <div class="rank-head">
+      <span>位次</span><span>性格</span><span>强度分布</span><span>得分</span>
+    </div>`;
+  rows.forEach((r, idx) => {
+    const cls = idx < 3 ? ` top${idx + 1}` : '';
+    html += `
+      <div class="rank-row${cls}">
+        <span class="rank-no">${String(idx + 1).padStart(2, '0')}</span>
+        <span class="rank-name">${r.id}·${r.name}</span>
+        <span class="rank-bar"><i data-v="${r.v}"></i></span>
+        <span class="rank-score">${r.v}%</span>
+      </div>`;
+  });
+  rankTableEl.innerHTML = html;
+  const bars = rankTableEl.querySelectorAll('.rank-bar i');
+  requestAnimationFrame(() => {
+    bars.forEach(b => { b.style.width = b.dataset.v + '%'; });
+  });
+}
+/* =========================================================
+   十四、性情解读
+   ========================================================= */
+function renderAnalysis(){
+  const sortedIdx = TRAITS
+    .map((_, i) => i)
+    .sort((a, b) => scores[b] - scores[a]);
+  const maxV   = scores[sortedIdx[0]];
+  const minV   = scores[sortedIdx[sortedIdx.length - 1]];
+  const spread = maxV - minV;
+  const top3 = sortedIdx.slice(0, 3);
+  const bot2 = sortedIdx.slice(-2);
+  let toneText;
+  if (spread >= 55) {
+    toneText = '你的性格轮廓分明，长板与短板之间落差较大，行事风格会明显偏向主导项，遇到与主导项相悖的局面时也容易感到别扭。';
+  } else if (spread >= 30) {
+    toneText = '你的性格有主有次，主导项清晰，其余各项不弱，整体偏向稳健，多数场合都能应对自如。';
+  } else {
+    toneText = '十项分布相当均衡，没有哪一项压倒性地突出。这是一种少见的中正之姿——好处是适应面广，代价是缺少一锤定音的锋利。';
+  }
+  const top3Names = top3.map(i => TRAITS[i].name);
+  let html = '';
+  html += `<p class="ana-title">性 情 解 读</p>`;
+  html += `
+    <div class="ana-block">
+      <h3>总 览</h3>
+      <p>此番观照，以 <em>${top3Names.join('、')}</em> 三者最盛。${toneText}</p>
+    </div>`;
+  html += `<div class="ana-block"><h3>主 导 三 性</h3>`;
+  top3.forEach(i => {
+    const v = scores[i];
+    const level = v >= 70 ? 'high' : v >= 40 ? 'mid' : 'low';
+    html += `
+      <div class="ana-item">
+        <h4>${TRAITS[i].id} · ${TRAITS[i].name} · ${v}%</h4>
+        <p>${TRAIT_READING[i][level]}</p>
+      </div>`;
+  });
+  html += `</div>`;
+  const bot2Names = bot2.map(i => TRAITS[i].name);
+  html += `
+    <div class="ana-block">
+      <h3>薄 弱 之 处</h3>
+      <p>与之相对，<em>${bot2Names.join('、')}</em> 两项偏弱。它们或是你尚未展开的侧面，或是你有意收敛的部分。少了它们，你的性格未必失衡，但在某些特定的局面里，可能会感到力有不逮。</p>
+    </div>`;
+  let closing;
+  if (maxV >= 82) {
+    closing = '此性既为你的锋芒，亦是你需时时回望之处。<br>越是突出的性格，越容易在顺境里积功，也越容易在逆境里反噬。';
+  } else if (maxV >= 65) {
+    closing = '主导性格清晰，行事有你自己的一贯方式。<br>认得清自己，比改变自己更重要。';
+  } else {
+    closing = '十性相济，不偏不倚。<br>这是一种难得的定力，也是一种需要主动作为才不会流于平庸的姿态。';
+  }
+  html += `
+    <div class="ana-block ana-closing">
+      <p>${closing}</p>
+    </div>`;
+  analysisEl.innerHTML = html;
+}
+/* =========================================================
+   十五、展示 / 刷新结果
+   ========================================================= */
+function showResult(){
+  scores = computeScores();
+  resultEl.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    resultEl.classList.add('show');
+    renderTopTraits();   /* ★ 主导三性 */
+    renderTable();
+    renderAnalysis();
+    animateRadar();
+  });
+  resultShown = true;
+  setTimeout(() => {
+    resultEl.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 120);
+}
+/* 回看修改后刷新已有结果 */
+function refreshResult(){
+  scores = computeScores();
+  renderTopTraits();
+  renderTable();
+  renderAnalysis();
+  animateRadar();
+}
+/* =========================================================
+   十五·五、★ 付费墙与解锁
+   ========================================================= */
+const paywallEl   = document.getElementById('paywall');
+const payBtn      = document.getElementById('payBtn');
+const payStatusEl = document.getElementById('payStatus');
+const LS_ANSWERS  = 'xgtz_answers_v1';
+const LS_UNLOCKED = 'xgtz_unlocked_v1';
+
+function loadSavedAnswers(){
+  try {
+    const a = JSON.parse(localStorage.getItem(LS_ANSWERS) || 'null');
+    if (Array.isArray(a) && a.length === answers.length) {
+      for (let i = 0; i < a.length; i++) {
+        if (typeof a[i] === 'number' && a[i] >= 0 && a[i] <= 4) answers[i] = a[i];
+      }
+    }
+  } catch (e) { /* 忽略损坏的本地数据 */ }
+}
+function saveAnswers(){
+  try { localStorage.setItem(LS_ANSWERS, JSON.stringify(answers)); } catch (e) {}
+}
+function isUnlocked(){
+  try { return localStorage.getItem(LS_UNLOCKED) === '1'; } catch (e) { return false; }
+}
+function setUnlocked(){
+  try { localStorage.setItem(LS_UNLOCKED, '1'); } catch (e) {}
+}
+function clearLocalState(){
+  try {
+    localStorage.removeItem(LS_ANSWERS);
+    localStorage.removeItem(LS_UNLOCKED);
+  } catch (e) {}
+}
+function showPaywall(){
+  paywallEl.classList.remove('hidden');
+  requestAnimationFrame(() => paywallEl.classList.add('show'));
+  setTimeout(() => {
+    paywallEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 120);
+}
+function getParam(name){
+  return new URLSearchParams(window.location.search).get(name);
+}
+/* 发起支付：创建订单 → 注入支付宝表单 → 自动提交跳转收银台 */
+payBtn.addEventListener('click', async () => {
+  if (payBtn.disabled) return;
+  payBtn.disabled = true;
+  payStatusEl.textContent = '正在创建订单……';
+  try {
+    const resp = await fetch('/api/pay/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // returnUrl 按用户当前访问地址动态生成：电脑访问 localhost、手机访问局域网 IP 都能正确回跳
+      body: JSON.stringify({ version: '1.0', returnUrl: window.location.origin + '/api/pay/return' })
+    });
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.message || '创建订单失败');
+    const holder = document.createElement('div');
+    holder.style.display = 'none';
+    holder.innerHTML = data.payForm;
+    document.body.appendChild(holder);
+    const form = holder.querySelector('form');
+    if (form) { form.submit(); }
+    else { window.location.href = data.payForm; }
+  } catch (err) {
+    payStatusEl.textContent = '创建订单失败：' + err.message;
+    payBtn.disabled = false;
+  }
+});
+/* 支付回跳后轮询订单状态，确认已支付则解锁报告 */
+let pollTimer = null;
+function startStatusPolling(orderId){
+  let tries = 0;
+  clearInterval(pollTimer);
+  payStatusEl.textContent = '正在确认支付结果……';
+  pollTimer = setInterval(async () => {
+    tries++;
+    try {
+      const resp = await fetch('/api/pay/status?orderId=' + encodeURIComponent(orderId));
+      const data = await resp.json();
+      if (data.success && data.status === 'PAID') {
+        clearInterval(pollTimer);
+        setUnlocked();
+        paywallEl.classList.add('hidden');
+        paywallEl.classList.remove('show');
+        showResult();
+      } else if (tries >= 30) {
+        clearInterval(pollTimer);
+        payStatusEl.textContent = '暂未确认到支付，请刷新页面后重试';
+      }
+    } catch (err) {
+      if (tries >= 30) {
+        clearInterval(pollTimer);
+        payStatusEl.textContent = '查询失败，请刷新页面重试';
+      }
+    }
+  }, 2000);
+}
+/* =========================================================
+   十六、初始化
+   ========================================================= */
+loadSavedAnswers();
+renderQuestion();
+layoutCanvas();
+drawRadar(0);
+/* 支付回跳携带 orderId：轮询确认并解锁 */
+const returnOrderId = getParam('orderId');
+if (returnOrderId) startStatusPolling(returnOrderId);
+/* 已解锁且答完：直接展示报告 */
+if (isAllAnswered() && isUnlocked()) {
+  showResult();
+}
+</script>
+</body>
+</html>
